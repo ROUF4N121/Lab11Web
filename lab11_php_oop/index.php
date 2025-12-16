@@ -1,6 +1,8 @@
 <?php
+session_start(); // 1. Aktifkan session di baris paling atas 
+
 // Load Konfigurasi & Library
-include "config.php";
+if (file_exists("config.php")) include "config.php";
 require "class/Database.php";
 require "class/Form.php";
 
@@ -11,20 +13,39 @@ $segments = explode('/', trim($path, '/'));
 $mod = isset($segments[0]) ? $segments[0] : 'artikel';
 $page = isset($segments[1]) ? $segments[1] : 'index';
 
+// 2. Cek Session Login
+// Halaman yang boleh diakses tanpa login
+$public_pages = ['home', 'user']; 
+
+if (!in_array($mod, $public_pages)) {
+    // Jika mengakses halaman privat tapi belum login, lempar ke login
+    if (!isset($_SESSION['is_login'])) {
+        header('Location: http://localhost/lab11_php_oop/user/login');
+        exit();
+    }
+}
+
 // Tentukan file modul
 $file = "module/{$mod}/{$page}.php";
 
-// Load Template Header
-include "template/header.php";
-
-// Load Konten Modul
-if (file_exists($file)) {
-    include $file;
+// Logika Tampilan: Jangan load header/footer/sidebar jika sedang di halaman login
+if ($mod == 'user' && $page == 'login') {
+    if (file_exists($file)) {
+        include $file;
+    } else {
+        echo "Halaman login tidak ditemukan.";
+    }
 } else {
-    echo "<div style='margin:20px; color:red;'>Modul tidak ditemukan: <b>{$mod}/{$page}</b></div>";
-}
+    // Load Template Utama
+    include "template/header.php";
+    
+    if (file_exists($file)) {
+        include $file;
+    } else {
+        echo "<div style='margin:20px; color:red;'>Modul tidak ditemukan: <b>{$mod}/{$page}</b></div>";
+    }
 
-// Load Template Sidebar & Footer
-include "template/sidebar.php";
-include "template/footer.php";
+    include "template/sidebar.php";
+    include "template/footer.php";
+}
 ?>
