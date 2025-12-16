@@ -292,7 +292,7 @@ Untuk file yg lain kita pakai kode praktikum sebelumnnya.
 
 2. Bagian Menu Tambah
 
-![](image/screenshot2png)
+![](image/screenshot2.png)
 
 3. Membuat Artikel
 
